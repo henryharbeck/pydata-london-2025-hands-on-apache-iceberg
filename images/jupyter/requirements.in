@@ -1,0 +1,7 @@
+pyiceberg[snappy,s3fs]
+polars
+pyarrow
+jupyterlab
+avro
+duckdb
+trino
