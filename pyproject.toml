@@ -1,3 +1,7 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
 [project]
 name = "hands-on-with-apache-iceberg"
 version = "0.1.0"
@@ -5,6 +9,10 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "jupyterlab>=4.4.0",
-    "marimo>=0.12.9",
+    "httpx>=0.28.1",
+    "rich>=14.0.0",
+    "typer>=0.15.2",
 ]
+
+[project.scripts]
+iceberg = "hands_on_with_apache_iceberg.cli:app"
