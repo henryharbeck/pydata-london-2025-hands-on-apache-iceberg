@@ -1,24 +1,20 @@
 services:
-  jupyter:
+  marimo:
     build:
-      context: images/jupyter
+      context: images/marimo
     command:
-      - "jupyter"
-      - "lab"
-      - "--ip"
+      - "marimo"
+      - "edit"
+      - "--host"
       - "0.0.0.0"
-      - "--port"
+      - "-p"
       - "8080"
-      - "--notebook-dir"
-      - "/app/notebooks"
-      - "--NotebookApp.token=''"
-      - "--NotebookApp.password=''"
-    user: ${UID:-1000}:${GUID:-20}
-    volumes:
-      - ./notebooks:/app/notebooks
-      - ./data:/app/notebooks/data
+      - "--no-token"
     ports:
-      - "8080:8080"
+      - "9090:8080"
+    volumes:
+      - "./notebooks:/app/notebooks/"
+      - "./data:/app/data/"
   minio:
     image: minio/minio
     ports:
@@ -95,8 +91,8 @@ services:
   trino:
     image: trinodb/trino:474
     volumes:
-      - ./images/trino/log.properties:/etc/trino/log.properties
       - ./images/trino/lakekeeper.properties:/etc/trino/catalog/lakekeeper.properties
+      - ./images/trino/hive.properties:/etc/trino/catalog/hive.properties
 
     healthcheck:
       test: [ "CMD", "curl", "-I", "http://localhost:8080/v1/status" ]
@@ -106,7 +102,15 @@ services:
       start_period: 10s
     ports:
       - "9999:8080"
+  hive:
+    image: apache/hive:4.0.1
+    environment:
+      - SERVICE_NAME=metastore
+    ports:
+      - "9083:9083"
+
 volumes:
   minio:
   nessie:
   db:
+  hive:

@@ -1,7 +1,8 @@
 pyiceberg[snappy,s3fs]
 polars
 pyarrow
-jupyterlab
-avro
 duckdb
-trino
+trino[sqlalchemy]
+marimo
+sqlglot
+altair
