@@ -28,7 +28,6 @@ async def download_all_files(urls: list[str], output_dir: Path) -> None:
         TransferSpeedColumn(),
         TimeRemainingColumn(),
     ) as progress:
-
         # Create tasks for individual downloads
         download_tasks = []
         for url in urls:
@@ -39,9 +38,7 @@ async def download_all_files(urls: list[str], output_dir: Path) -> None:
         # Create async tasks
         async with httpx.AsyncClient(follow_redirects=True) as client:
             tasks = [
-                download_file(
-                    client, url, task, filename, output_dir, progress
-                )
+                download_file(client, url, task, filename, output_dir, progress)
                 for url, task, filename in download_tasks
             ]
             # Wait for all downloads to complete
@@ -93,9 +90,9 @@ async def download_file(
 
         # Ensure the task is marked as complete
         progress.update(
-            task_id, 
+            task_id,
             completed=total_size if total_size > 0 else 1.0,
-            description=f"[green]✓ Downloaded: {filename}"
+            description=f"[green]✓ Downloaded: {filename}",
         )
 
     except httpx.HTTPError as e:

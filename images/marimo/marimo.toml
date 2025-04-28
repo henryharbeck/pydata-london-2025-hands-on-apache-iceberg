@@ -3,7 +3,7 @@ copilot = false
 activate_on_typing = true
 
 [runtime]
-auto_instantiate = true
+auto_instantiate = false
 auto_reload = "off"
 output_max_bytes = 8000000
 std_stream_max_bytes = 1000000

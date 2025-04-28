@@ -6,3 +6,4 @@ trino[sqlalchemy]
 marimo
 sqlglot
 altair
+python-lsp-server

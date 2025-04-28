@@ -11,7 +11,7 @@ services:
       - "8080"
       - "--no-token"
     ports:
-      - "9090:8080"
+      - "8080:8080"
     volumes:
       - "./notebooks:/app/notebooks/"
       - "./data:/app/data/"
@@ -89,7 +89,7 @@ services:
       db:
         condition: service_healthy
   trino:
-    image: trinodb/trino:474
+    image: trinodb/trino:475
     volumes:
       - ./images/trino/lakekeeper.properties:/etc/trino/catalog/lakekeeper.properties
       - ./images/trino/hive.properties:/etc/trino/catalog/hive.properties

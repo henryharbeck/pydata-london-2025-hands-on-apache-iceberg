@@ -2,7 +2,7 @@
 
 import marimo
 
-__generated_with = "0.13.0"
+__generated_with = "0.13.2"
 app = marimo.App(
     width="medium",
     app_title="Exploring Iceberg",
@@ -11,7 +11,18 @@ app = marimo.App(
 )
 
 
-@app.cell
+@app.cell(hide_code=True)
+def _():
+    import marimo as mo
+    import pyiceberg
+    from pyiceberg.catalog.rest import RestCatalog
+    import polars as pl
+    import pyarrow.csv as pc
+    import pyarrow as pa
+    return RestCatalog, mo, pl
+
+
+@app.cell(hide_code=True)
 def _(mo):
     mo.md(
         r"""
@@ -29,21 +40,15 @@ def _(mo):
     return
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(mo):
-    mo.md(r"""First we need a catalog - the catalog keeps track of the metadata""")
+    mo.md(
+        r"""
+        First we need a catalog - the catalog keeps track of the metadata. Depending on the catalog instance, it can do many more things, but today we will mainly focus on its role as the place to store the location of the metadata.
+
+        """
+    )
     return
-
-
-@app.cell
-def _():
-    import marimo as mo
-    import pyiceberg
-    from pyiceberg.catalog.rest import RestCatalog
-    import polars as pl
-    import pyarrow.csv as pc
-    import pyarrow as pa
-    return RestCatalog, mo, pl
 
 
 @app.cell
@@ -55,6 +60,12 @@ def _(RestCatalog):
 @app.cell
 def _(catalog):
     catalog.create_namespace_if_not_exists("house_prices")
+    return
+
+
+@app.cell
+def _(mo):
+    mo.md(r"""Now we have a namespace that will""")
     return
 
 
@@ -174,31 +185,31 @@ def _(pl):
     return house_prices_2024, read_house_prices
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(house_prices_2024):
     house_prices_2024
     return
 
 
-@app.cell
+@app.cell(disabled=True, hide_code=True)
 def _(catalog):
     catalog.drop_table("house_prices.raw", purge_requested=True)
     return
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(catalog, house_prices_schema):
     house_prices = catalog.create_table_if_not_exists("house_prices.raw", schema=house_prices_schema, location="s3://warehouse/house_prices/raw")
     return (house_prices,)
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(mo):
-    mo.md(r"""PyIceberg is strict on the schema - by default, Polars is a bit looser, so we need to `cast` the exported polars arrow table into the same schema as we've defined - otherwise our write will be rejected. """)
+    mo.md(r"""PyIceberg is strict on the schema - by default, Polars is a bit looser, so we need to `cast` the exported polars arrow table into the same schema as we've defined - otherwise our write will be rejected.""")
     return
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(house_prices, house_prices_2024, house_prices_schema):
     # Drop the record status column, export to arrow and cast it
     house_prices_arrow = (
@@ -219,36 +230,36 @@ app._unparsable_cell(
 
     Let's have a look at the different files we've created out of the box. First, we need something that can talk to S3 - in this case our Minio S3 - enter fsspec and s3fs:
     """,
-    name="_"
+    column=None, disabled=False, hide_code=True, name="_"
 )
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _():
     import s3fs
     fs = s3fs.S3FileSystem(endpoint_url="http://minio:9000", key="minio", secret="minio1234")
     return (fs,)
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""Now that we have something that can read our S3 bucket in Minio, we need to know where our Iceberg Catalogue put our most recent table update. PyIceberg stores that information in the `metadata_location` of the table""")
     return
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(house_prices):
     house_prices.metadata_location
     return
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""That's a gzipped json file, a choice that our Iceberg Rest Catalog has chosen for us, so we need to do some extra work to read our metadata""")
     return
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _():
     from fsspec import AbstractFileSystem
     from pyiceberg.table import Table
@@ -262,25 +273,25 @@ def _():
     return AbstractFileSystem, Any, Table, get_iceberg_metadata
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""Let's have a look at the contents of the current metadata.json to get a better understanding of how Iceberg does what it does""")
     return
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(fs, get_iceberg_metadata, house_prices):
     get_iceberg_metadata(fs, house_prices)
     return
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""The next layer of the onion is the `manifest list` - we can find that by looking in the `snapshots` array for the current snapshot. Note that the manifest list is stored as Avro for faster scanning. Let's convert it to a dictionary for our simple human brains to understand.""")
     return
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(AbstractFileSystem, Any, Table, pl):
     def get_iceberg_manifest_list(fs: AbstractFileSystem, table: Table) -> dict[str, Any]:
         """Fetch the manifest list for the current snapshot and convert to a list of dicts"""
@@ -290,20 +301,20 @@ def _(AbstractFileSystem, Any, Table, pl):
     return (get_iceberg_manifest_list,)
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(fs, get_iceberg_manifest_list, house_prices):
     manifest_list = get_iceberg_manifest_list(fs, house_prices)
     manifest_list
     return
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""We can see that the manifest list unsurprisingly contains a list of manifests, alongside some metadata for that particular manifest. We've only written one file to our Iceberg table, so we have only one manifest currently. Let's dig one level deeper and open that manifest.""")
     return
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(
     AbstractFileSystem,
     Table,
@@ -320,13 +331,13 @@ def _(
     return (get_iceberg_manifest,)
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""At the lowest level of metadata, we can see a reference to the actual data files that make up the physical data stored on disk. Note that Iceberg keeps track of the physical files of the table, unlike something like Hive, which uses a folder as a logical container for a table. We can see that the Parquet file is pretty much as we expected, and we can read it directly as any other Parquet files - Iceberg doesn't specify anything about the physical data - it just stores metadata about the files to enable all the features of Iceberg""")
     return
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(AbstractFileSystem, Table, fs, get_iceberg_manifest, house_prices, pl):
     def get_iceberg_data_file(fs: AbstractFileSystem, table: Table, index=-1) -> pl.DataFrame:
         manifest = get_iceberg_manifest(fs, table, index)
@@ -337,13 +348,13 @@ def _(AbstractFileSystem, Table, fs, get_iceberg_manifest, house_prices, pl):
     return
 
 
-@app.cell
-def _(manifest, mo):
-    mo.md(f"In total, on disk, this comes to around {manifest[0]['data_file']['file_size_in_bytes'] / 1024 / 1024:0.2f} MB, which is pretty small, so we only have one data file in our manifest")
+@app.cell(hide_code=True)
+def _(fs, get_iceberg_manifest, house_prices, mo):
+    mo.md(f"In total, on disk, this comes to around {get_iceberg_manifest(fs, house_prices)[0]['data_file']['file_size_in_bytes'] / 1024 / 1024:0.2f} MB, which is pretty small, so we only have one data file in our manifest")
     return
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(mo):
     mo.md(
         r"""
@@ -355,55 +366,32 @@ def _(mo):
     return
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(house_prices, house_prices_schema, read_house_prices):
     house_prices_2023 = read_house_prices("data/pp-2023.csv")
     house_prices.append(house_prices_2023.to_arrow().cast(house_prices_schema.as_arrow()))
     return
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(fs, get_iceberg_metadata, house_prices):
     get_iceberg_metadata(fs, house_prices)
     return
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(fs, get_iceberg_manifest_list, house_prices):
     get_iceberg_manifest_list(fs, house_prices)
     return
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(fs, get_iceberg_manifest, house_prices):
     get_iceberg_manifest(fs, house_prices)
     return
 
 
-@app.cell
-def _():
-    import sqlalchemy as sa
-    return (sa,)
-
-
-@app.cell
-def _(sa):
-    engine = sa.create_engine('trino://trino:@trino:8080/lakekeeper')
-    return (engine,)
-
-
-@app.cell
-def _(engine, house_prices, mo, raw):
-    _df = mo.sql(
-        f"""
-        SELECT count(distinct transaction_id) FROM house_prices.raw
-        """,
-        engine=engine
-    )
-    return
-
-
-@app.cell
+@app.cell(hide_code=True)
 def _():
     return
 
