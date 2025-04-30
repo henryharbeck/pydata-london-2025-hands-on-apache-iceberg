@@ -2,7 +2,7 @@
 
 import marimo
 
-__generated_with = "0.13.0"
+__generated_with = "0.13.3"
 app = marimo.App(
     width="medium",
     app_title="Exploring Iceberg",
@@ -156,7 +156,7 @@ def _():
     return (house_prices_schema,)
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(mo):
     mo.md(
         r"""
@@ -177,7 +177,7 @@ def _(catalog, house_prices_schema):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(
-        r"""
+        """
         ## The Data
         Pyiceberg expects to receive a Pyarrow table, so we need to read in our CSV and convert it to Arrow. In this case, our data does not have headers, so we need to set those as well.
         """
@@ -225,7 +225,7 @@ def _(pl):
     return house_prices_2024, read_house_prices
 
 
-@app.cell(disabled=True)
+@app.cell
 def _():
     # catalog.drop_table("house_prices.raw", purge_requested=True)
     return
@@ -342,20 +342,14 @@ def _(mo):
 
 
 @app.cell
-def _(AbstractFileSystem, Any, Table, pl):
+def _(AbstractFileSystem, Any, Table, fs, house_prices_t, pl):
     def get_iceberg_manifest_list(fs: AbstractFileSystem, table: Table) -> dict[str, Any]:
         """Fetch the manifest list for the current snapshot and convert to a list of dicts"""
         manifest_list = table.current_snapshot().manifest_list
         with fs.open(manifest_list) as f:
             return pl.read_avro(f).to_dicts()
+    get_iceberg_manifest_list(fs, house_prices_t)
     return (get_iceberg_manifest_list,)
-
-
-@app.cell
-def _(fs, get_iceberg_manifest_list, house_prices_t):
-    manifest_list = get_iceberg_manifest_list(fs, house_prices_t)
-    manifest_list
-    return
 
 
 @app.cell(hide_code=True)
@@ -384,7 +378,19 @@ def _(
 
 @app.cell(hide_code=True)
 def _(mo):
-    mo.md(r"""At the lowest level of metadata, we can see a reference to the actual data files that make up the physical data stored on disk. Note that Iceberg keeps track of the physical files of the table, unlike something like Hive, which uses a folder as a logical container for a table. We can see that the Parquet file is pretty much as we expected, and we can read it directly as any other Parquet files - Iceberg doesn't specify anything about the physical data - it just stores metadata about the files to enable all the features of Iceberg""")
+    mo.md(
+        r"""
+        At the lowest level of metadata, we can see a reference to the actual data files that make up the physical data stored on disk. 
+
+        /// admonition
+
+        Note that Iceberg keeps track of the physical files of the table, unlike something like Hive, which uses a folder as a logical container for a table. 
+
+        ///
+
+        We can see that the Parquet file is pretty much as we expected, and we can read it directly as any other Parquet files - Iceberg doesn't specify anything about the physical data - it just stores metadata about the files to enable all the features of Iceberg
+        """
+    )
     return
 
 
@@ -396,7 +402,7 @@ def _(AbstractFileSystem, Table, fs, get_iceberg_manifest, house_prices_t, pl):
         with fs.open(manifest[index]["data_file"]["file_path"]) as p_f:
             return pl.read_parquet(p_f)
 
-    get_iceberg_data_file(fs, house_prices_t)
+    get_iceberg_data_file(fs, house_prices_t, 0)
     return
 
 
@@ -419,7 +425,7 @@ def _(house_prices_schema, house_prices_t, read_house_prices):
     return
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""Now that we have some more data, what do you see that has changed in the metadata?""")
     return
@@ -445,7 +451,13 @@ def _(fs, get_iceberg_manifest, house_prices_t):
 
 @app.cell(hide_code=True)
 def _(mo):
-    mo.md(r"""All the metadata we've looked at here is stored in object storage. It's this metadata which powers all of Iceberg - if you can understand how this metadata is put together, you understand the inner workings of Iceberg.""")
+    mo.md(
+        r"""
+        ## Concluding on Metadata
+
+        All the metadata we've looked at here is stored in object storage. It's this metadata which powers all of Iceberg - if you can understand how this metadata is put together, you understand the inner workings of Iceberg.
+        """
+    )
     return
 
 

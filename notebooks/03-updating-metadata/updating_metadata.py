@@ -2,11 +2,11 @@
 
 import marimo
 
-__generated_with = "0.13.0"
-app = marimo.App(width="medium")
+__generated_with = "0.13.3"
+app = marimo.App(width="full")
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(mo):
     mo.md(
         r"""
@@ -14,7 +14,7 @@ def _(mo):
 
         We've added data to our tables and inspected how Iceberg keeps track of the data in the metadata files
 
-        Usually when Now that we've added some data, we've found out that we've made a mistake - we should have added a `_loaded_at` column to our data, so that we can catch late-arriving data
+        Usually when Now that we've added some data, we've found out that we've made a mistake - we should have added a `_loaded_at` column to our data, so that we can differentiate downstream between the source timestamp and our loaded time
         """
     )
     return
@@ -26,11 +26,16 @@ def _():
     from pyiceberg.catalog.rest import RestCatalog
     import polars as pl
     import datetime as dt
-    return RestCatalog, dt, mo, pl
+    import sqlalchemy as sa
+
+    from import_demo import get_iceberg_manifest, get_iceberg_manifest_list, get_iceberg_metadata
+    from s3fs import S3FileSystem
+    return RestCatalog, dt, mo, pl, sa
 
 
 @app.cell
 def _(RestCatalog):
+    # Get a reference to our catalog and table again
     catalog = RestCatalog("lakekeeper", uri="http://lakekeeper:8181/catalog", warehouse="lakehouse")
     house_prices = catalog.load_table('house_prices.raw')
     return (house_prices,)
@@ -38,7 +43,9 @@ def _(RestCatalog):
 
 @app.cell
 def _(dt, pl):
+    #
     def read_house_prices(filename: str) -> pl.DataFrame:
+        # Columns sourced from data dictionary
         house_prices_columns = [
             "transaction_id",
             "price",
@@ -61,15 +68,15 @@ def _(dt, pl):
         df = (
             pl.scan_csv(
                 filename,
-                try_parse_dates=True,
                 has_header=False,
                 new_columns=house_prices_columns,
             )
-            .with_columns(pl.col("date_of_transfer").cast(pl.Date()))
+            .with_columns(pl.col("date_of_transfer").str.to_date("%Y-%m-%d %H:%M"))
             .collect()
         )
         return df
-    house_prices_2024 = read_house_prices("data/pp-2024.csv").with_columns(pl.lit(dt.datetime.now(tz=dt.UTC)).alias("_loaded_at")).drop("record_status")
+    house_prices_2024 = read_house_prices("data/pp-2024.csv").with_columns(pl.lit(dt.datetime.now(tz=dt.UTC)).alias("_loaded_at"))
+    house_prices_2024
     return (house_prices_2024,)
 
 
@@ -83,7 +90,7 @@ def _(house_prices, house_prices_2024):
     return
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""Pyiceberg is preventing us from doing something we shouldn't - Iceberg has a fixed schema, so we can't just add arbitrary columns to it. We need to update the schema to accomodate our new column""")
     return
@@ -104,12 +111,29 @@ def _(house_prices):
 
 @app.cell
 def _(house_prices, house_prices_2024):
-    house_prices.upsert(house_prices_2024.to_arrow().cast(house_prices.schema().as_arrow()))
+    house_prices.upsert(house_prices_2024.to_arrow().cast(house_prices.schema().as_arrow()), join_cols=['transaction_id'])
     return
 
 
 @app.cell
+def _(sa):
+    engine = sa.create_engine("trino://trino:@trino:8080/lakekeeper")
+    return (engine,)
+
+
+@app.cell
 def _():
+    return
+
+
+@app.cell
+def _(engine, house_prices, mo, raw):
+    _df = mo.sql(
+        f"""
+        SELECT * FROM house_prices.raw
+        """,
+        engine=engine
+    )
     return
 
 

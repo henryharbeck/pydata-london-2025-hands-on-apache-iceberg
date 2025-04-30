@@ -2,7 +2,7 @@
 
 import marimo
 
-__generated_with = "0.13.0"
+__generated_with = "0.13.2"
 app = marimo.App(width="medium")
 
 
@@ -162,6 +162,25 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
+def _():
+    return
+
+
+app._unparsable_cell(
+    r"""
+    _df = mo.sql(
+        f\"\"\"
+        SELECT * FROM house_prices.raw 
+        where transaction_id = '\{25E9DA80-AD30-555E-E063-4704A8C066F2\}'
+        \"\"\",
+        engine=engine
+    )
+    """,
+    name="_"
+)
+
+
+@app.cell
 def _():
     return
 
