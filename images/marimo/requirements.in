@@ -1,5 +1,5 @@
 pyiceberg[snappy,s3fs]
-polars
+polars[style]
 pyarrow
 duckdb
 trino[sqlalchemy]

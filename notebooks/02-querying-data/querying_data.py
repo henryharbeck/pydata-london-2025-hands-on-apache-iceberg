@@ -13,9 +13,15 @@ def _():
     return mo, pl
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(mo):
-    mo.md(r"""The key selling point for Iceberg is that we have the option of using many different query engines to read from the same data storage. Let's run some simple queries using a few different query engines. Many of these engines are using pyiceberg as a jumping-off point, either to directly interface with it, or as a source for the current metadata.json""")
+    mo.md(
+        r"""
+        # Querying the data
+
+        The key selling point for Iceberg is that we have the option of using many different query engines to read from the same data storage. Let's run some simple queries using a few different query engines. Many of these engines are using pyiceberg as a jumping-off point, either to directly interface with it, or as a source for the current metadata.json
+        """
+    )
     return
 
 
@@ -33,9 +39,15 @@ def _(catalog):
     return (table,)
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(mo):
-    mo.md(r"""Let's see how Pyiceberg handles querying first. For each of these examples, we'll do something simple - like taking the mean monthly house price per month in 2024""")
+    mo.md(
+        r"""
+        ## Pyiceberg
+
+        Let's see how Pyiceberg handles querying first. For each of these examples, we'll do something simple - like taking the mean monthly house price per month in 2024.
+        """
+    )
     return
 
 
@@ -58,9 +70,9 @@ def _(iceberg_results, pl):
     return
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(mo):
-    mo.md(r"""Pyiceberg provides us with limited filtering and projection capabilities - these are the building blocks for libraries that build on top of Pyiceberg. We used Polars to finish the job in this example, but polars can read Iceberg directly - no need for the extra step""")
+    mo.md(r"""Pyiceberg provides us with limited filtering and projection capabilities - it provides the building blocks for libraries that build on top of Pyiceberg. We used Polars to finish the job in this example, but polars can read Iceberg directly - no need for the extra step""")
     return
 
 
@@ -69,11 +81,11 @@ def _(pl, table):
     polars_df = pl.scan_iceberg(table).group_by(
         pl.col("date_of_transfer").dt.month()
     ).agg(pl.col("price").mean()).sort(by="date_of_transfer").collect()
-    polars_df
+    polars_df.style.fmt_number("price", decimals=2)
     return
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""Duckdb is also an excellent choice for working with Iceberg, especially if you want to stick to SQL""")
     return
@@ -91,7 +103,6 @@ def _(table):
     conn.install_extension("avro")
     conn.load_extension("avro")
 
-    #conn.sql("UPDATE EXTENSIONS")
     # To be able to read the Iceberg metadata, we need credentials for the bucket
     conn.sql("""
     CREATE OR REPLACE SECRET minio (
@@ -113,7 +124,7 @@ def _(table):
     return
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""Trino is another popular option, especially since AWS provides it as a serverless query engine through Athena. Trino is another SQL-based query engine, so the query looks pretty similar, just using Trino SQL dialect""")
     return
@@ -138,7 +149,19 @@ def _(pl):
     return
 
 
-@app.cell
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(
+        r"""
+        # Exercise:
+
+        Try running a query to calculate the average house price for your county. If you don't live in the UK - pick the funniest sounding one. (I quite like WOKINGHAM)
+        """
+    )
+    return
+
+
+@app.cell(hide_code=True)
 def _():
     return
 

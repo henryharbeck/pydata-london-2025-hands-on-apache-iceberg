@@ -102,13 +102,6 @@ services:
       start_period: 10s
     ports:
       - "9999:8080"
-  hive:
-    image: apache/hive:4.0.1
-    environment:
-      - SERVICE_NAME=metastore
-    ports:
-      - "9083:9083"
-
 volumes:
   minio:
   nessie:

@@ -23,9 +23,9 @@ def download_data(
     base_url = (
         "http://prod.publicdata.landregistry.gov.uk.s3-website-eu-west-1.amazonaws.com"
     )
+    # Example file: pp-2024.csv
     urls = [f"{base_url}/pp-{year}.csv" for year in range(1995, 2025)]
     # Example file: pp-2024.csv
-    # Use the download module to handle the file downloads
     output_path = download.download_files(urls, output_dir)
 
     console.print(f"[green]All files downloaded successfully to {output_path}")
@@ -50,3 +50,12 @@ def bootstrap_demo() -> None:
             status.update("[bold blue]Creating warehouse...")
             bootstrap.create_warehouse(client, "warehouse")
             console.print("[bold green]✅ Warehouse created successfully")
+
+@app.command("clear")
+def clear_data() -> None:
+    fs = s3fs.S3FileSystem(endpoint_url="http://localhost:9000",
+                           key="minio",
+                           secret="minio1234",
+                           use_ssl=False)
+
+    fs.rm("warehouse", recursive=True)

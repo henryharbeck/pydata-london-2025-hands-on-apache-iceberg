@@ -7,6 +7,20 @@ app = marimo.App(width="medium")
 
 
 @app.cell
+def _(mo):
+    mo.md(
+        r"""
+        # Updating Metadata
+
+        We've added data to our tables and inspected how Iceberg keeps track of the data in the metadata files
+
+        Usually when Now that we've added some data, we've found out that we've made a mistake - we should have added a `_loaded_at` column to our data, so that we can catch late-arriving data
+        """
+    )
+    return
+
+
+@app.cell
 def _():
     import marimo as mo
     from pyiceberg.catalog.rest import RestCatalog
@@ -20,12 +34,6 @@ def _(RestCatalog):
     catalog = RestCatalog("lakekeeper", uri="http://lakekeeper:8181/catalog", warehouse="lakehouse")
     house_prices = catalog.load_table('house_prices.raw')
     return (house_prices,)
-
-
-@app.cell
-def _(mo):
-    mo.md(r"""Now that we've added some data, we've found out that we've made a mistake - we should have added a `_loaded_at` column to our data, so that we can catch late-arriving data""")
-    return
 
 
 @app.cell
