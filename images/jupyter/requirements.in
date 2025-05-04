@@ -3,4 +3,5 @@ polars[style]
 pyarrow
 duckdb
 trino[sqlalchemy]
-marimo[recommended,lsp]
+jupyterlab
+jupyterlab_myst

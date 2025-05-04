@@ -1,8 +1,6 @@
-
-
 import marimo
 
-__generated_with = "0.13.3"
+__generated_with = "0.13.4"
 app = marimo.App(
     width="medium",
     app_title="Exploring Iceberg",
@@ -25,16 +23,16 @@ def _():
 def _(mo):
     mo.md(
         r"""
-        # Hands-on with Apache Iceberg
+    # Hands-on with Apache Iceberg
 
-        ## The Context
-        - Came out of Netflix
-        - Improved version of Hive
-        - Separation of storage and compute
-        - Big Providers
-        - Iceberg is an implementation standard for the storage layer
-        - Compute now just needs to speak Iceberg
-        """
+    ## The Context
+    - Came out of Netflix
+    - Improved version of Hive
+    - Separation of storage and compute
+    - Big Providers
+    - Iceberg is an implementation standard for the storage layer
+    - Compute now just needs to speak Iceberg
+    """
     )
     return
 
@@ -43,10 +41,10 @@ def _(mo):
 def _(mo):
     mo.md(
         r"""
-        ## The Catalog
+    ## The Catalog
 
-        First we need a catalog - the catalog keeps track of the metadata. Depending on the catalog instance, it can do many more things, but today we will mainly focus on its role as the place to store the location of the metadata.
-        """
+    First we need a catalog - the catalog keeps track of the metadata. Depending on the catalog instance, it can do many more things, but today we will mainly focus on its role as the place to store the location of the metadata.
+    """
     )
     return
 
@@ -67,12 +65,12 @@ def _(catalog):
 def _(mo):
     mo.md(
         r"""
-        Now we have a namespace that will contain all our tables - think of a namespace like a schema in a traditional database.
+    Now we have a namespace that will contain all our tables - think of a namespace like a schema in a traditional database.
 
-        ## Schema
+    ## Schema
 
-        Next we need another type of schema - the data schema. In Iceberg, we can define the schema using Pyiceberg types, though many query engines also support creating Iceberg tables via SQL.
-        """
+    Next we need another type of schema - the data schema. In Iceberg, we can define the schema using Pyiceberg types, though many query engines also support creating Iceberg tables via SQL.
+    """
     )
     return
 
@@ -160,10 +158,10 @@ def _():
 def _(mo):
     mo.md(
         r"""
-        ## The Table
+    ## The Table
 
-        With our schema in place, we're now ready to create the table. We need to specify the location where the table will be stored, though depending on the catalog, it can automatically assign a location.
-        """
+    With our schema in place, we're now ready to create the table. We need to specify the location where the table will be stored, though depending on the catalog, it can automatically assign a location.
+    """
     )
     return
 
@@ -178,9 +176,9 @@ def _(catalog, house_prices_schema):
 def _(mo):
     mo.md(
         """
-        ## The Data
-        Pyiceberg expects to receive a Pyarrow table, so we need to read in our CSV and convert it to Arrow. In this case, our data does not have headers, so we need to set those as well.
-        """
+    ## The Data
+    Pyiceberg expects to receive a Pyarrow table, so we need to read in our CSV and convert it to Arrow. In this case, our data does not have headers, so we need to set those as well.
+    """
     )
     return
 
@@ -235,22 +233,22 @@ def _():
 def _(mo):
     mo.md(
         r"""
-        ## Writing the Data
-        Now that we have the data loaded, we're ready to write it out to our Iceberg table. We have 3 different strategies available to us:
+    ## Writing the Data
+    Now that we have the data loaded, we're ready to write it out to our Iceberg table. We have 3 different strategies available to us:
 
-        - append
-        - overwrite
-        - upsert
+    - append
+    - overwrite
+    - upsert
 
-        Append and overwrite should hopefully make sense.
-        Upsert is a recent addition to Pyiceberg. Given a key column, it will compare the keys to decide if data should be updated or inserted.
+    Append and overwrite should hopefully make sense.
+    Upsert is a recent addition to Pyiceberg. Given a key column, it will compare the keys to decide if data should be updated or inserted.
 
-        For now, let's stick to `append`.
+    For now, let's stick to `append`.
 
-        /// admonition | Note on schemas
-        PyIceberg is strict on the schema - by default, Polars is a bit looser, so we need to `cast` the exported polars arrow table into the same schema as we've defined - otherwise our write will be rejected.
-        ///
-        """
+    /// admonition | Note on schemas
+    PyIceberg is strict on the schema - by default, Polars is a bit looser, so we need to `cast` the exported polars arrow table into the same schema as we've defined - otherwise our write will be rejected.
+    ///
+    """
     )
     return
 
@@ -272,12 +270,12 @@ def _(house_prices_2024, house_prices_schema, house_prices_t):
 def _(mo):
     mo.md(
         """
-        # Metadata - the secret of Iceberg
+    # Metadata - the secret of Iceberg
 
-        Now that we've created a schema for our houseprices, let's take a look at the metadata that we've created. In Iceberg, all the metadata is stored in a combination of JSON and Avro, and all the metadata is stored in the S3 buckets directly, which is what makes it accessible from the various query engines. 
+    Now that we've created a schema for our houseprices, let's take a look at the metadata that we've created. In Iceberg, all the metadata is stored in a combination of JSON and Avro, and all the metadata is stored in the S3 buckets directly, which is what makes it accessible from the various query engines. 
 
-        Let's have a look at the different files we've created out of the box. First, we need something that can talk to S3 - in this case our Minio S3 - enter fsspec and s3fs
-        """
+    Let's have a look at the different files we've created out of the box. First, we need something that can talk to S3 - in this case our Minio S3 - enter fsspec and s3fs
+    """
     )
     return
 
@@ -380,16 +378,16 @@ def _(
 def _(mo):
     mo.md(
         r"""
-        At the lowest level of metadata, we can see a reference to the actual data files that make up the physical data stored on disk. 
+    At the lowest level of metadata, we can see a reference to the actual data files that make up the physical data stored on disk. 
 
-        /// admonition
+    /// admonition
 
-        Note that Iceberg keeps track of the physical files of the table, unlike something like Hive, which uses a folder as a logical container for a table. 
+    Note that Iceberg keeps track of the physical files of the table, unlike something like Hive, which uses a folder as a logical container for a table. 
 
-        ///
+    ///
 
-        We can see that the Parquet file is pretty much as we expected, and we can read it directly as any other Parquet files - Iceberg doesn't specify anything about the physical data - it just stores metadata about the files to enable all the features of Iceberg
-        """
+    We can see that the Parquet file is pretty much as we expected, and we can read it directly as any other Parquet files - Iceberg doesn't specify anything about the physical data - it just stores metadata about the files to enable all the features of Iceberg
+    """
     )
     return
 
@@ -408,7 +406,7 @@ def _(AbstractFileSystem, Table, fs, get_iceberg_manifest, house_prices_t, pl):
 
 @app.cell(hide_code=True)
 def _(fs, get_iceberg_manifest, house_prices_t, mo):
-    mo.md(f"In total, on disk, this comes to around {get_iceberg_manifest(fs, house_prices_t)[0]['data_file']['file_size_in_bytes'] / 1024 / 1024:0.2f} MB, which is pretty small, so we only have one data file in our manifest")
+    mo.md(f"""In total, on disk, this comes to around {get_iceberg_manifest(fs, house_prices_t)[0]['data_file']['file_size_in_bytes'] / 1024 / 1024:0.2f} MB, which is pretty small, so we only have one data file in our manifest""")
     return
 
 
@@ -453,10 +451,10 @@ def _(fs, get_iceberg_manifest, house_prices_t):
 def _(mo):
     mo.md(
         r"""
-        ## Concluding on Metadata
+    ## Concluding on Metadata
 
-        All the metadata we've looked at here is stored in object storage. It's this metadata which powers all of Iceberg - if you can understand how this metadata is put together, you understand the inner workings of Iceberg.
-        """
+    All the metadata we've looked at here is stored in object storage. It's this metadata which powers all of Iceberg - if you can understand how this metadata is put together, you understand the inner workings of Iceberg.
+    """
     )
     return
 

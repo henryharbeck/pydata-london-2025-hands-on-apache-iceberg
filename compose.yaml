@@ -1,4 +1,31 @@
 services:
+  jupyter:
+    build:
+      context: images/jupyter
+    command:
+      - "jupyter"
+      - "lab"
+      - "--ip"
+      - "0.0.0.0"
+      - "--port"
+      - "8080"
+      - "--notebook-dir"
+      - "/app/notebooks"
+      - "--NotebookApp.token=''"
+      - "--NotebookApp.password=''"
+#    user: ${UID:-1000}:${GUID:-20}
+    healthcheck:
+      test: ["CMD", "curl", "localhost:8080/api"]
+      interval: 30s
+      timeout: 10s
+      retries: 2
+      start_period: 15s
+    volumes:
+      - ./notebooks:/app/notebooks
+      - ./data:/app/notebooks/data
+    ports:
+      - "8080:8080"
+
   marimo:
     build:
       context: images/marimo
@@ -11,7 +38,7 @@ services:
       - "8080"
       - "--no-token"
     ports:
-      - "8080:8080"
+      - "8081:8080"
     volumes:
       - "./notebooks:/app/notebooks/"
       - "./data:/app/data/"

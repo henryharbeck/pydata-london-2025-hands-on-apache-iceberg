@@ -1,8 +1,6 @@
-
-
 import marimo
 
-__generated_with = "0.13.2"
+__generated_with = "0.13.4"
 app = marimo.App(width="medium")
 
 
@@ -17,10 +15,10 @@ def _():
 def _(mo):
     mo.md(
         r"""
-        # Querying the data
+    # Querying the data
 
-        The key selling point for Iceberg is that we have the option of using many different query engines to read from the same data storage. Let's run some simple queries using a few different query engines. Many of these engines are using pyiceberg as a jumping-off point, either to directly interface with it, or as a source for the current metadata.json
-        """
+    The key selling point for Iceberg is that we have the option of using many different query engines to read from the same data storage. Let's run some simple queries using a few different query engines. Many of these engines are using pyiceberg as a jumping-off point, either to directly interface with it, or as a source for the current metadata.json
+    """
     )
     return
 
@@ -43,10 +41,10 @@ def _(catalog):
 def _(mo):
     mo.md(
         r"""
-        ## Pyiceberg
+    ## Pyiceberg
 
-        Let's see how Pyiceberg handles querying first. For each of these examples, we'll do something simple - like taking the mean monthly house price per month in 2024.
-        """
+    Let's see how Pyiceberg handles querying first. For each of these examples, we'll do something simple - like taking the mean monthly house price per month in 2024.
+    """
     )
     return
 
@@ -153,10 +151,10 @@ def _(pl):
 def _(mo):
     mo.md(
         r"""
-        # Exercise:
+    # Exercise:
 
-        Try running a query to calculate the average house price for your county. If you don't live in the UK - pick the funniest sounding one. (I quite like WOKINGHAM)
-        """
+    Try running a query to calculate the average house price for your county. If you don't live in the UK - pick the funniest sounding one. (I quite like WOKINGHAM)
+    """
     )
     return
 
