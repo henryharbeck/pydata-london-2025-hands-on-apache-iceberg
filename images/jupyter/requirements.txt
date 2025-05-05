@@ -65,12 +65,15 @@ colorama==0.4.6 ; sys_platform == 'win32' or platform_system == 'Windows'
     # via
     #   click
     #   ipython
+    #   tqdm
 comm==0.2.2
     # via ipykernel
 commonmark==0.9.1
     # via great-tables
 cramjam==2.10.0
     # via python-snappy
+daft==0.4.13
+    # via -r images/jupyter/requirements.in
 debugpy==1.8.14
     # via ipykernel
 decorator==5.2.1
@@ -93,6 +96,7 @@ frozenlist==1.6.0
     #   aiosignal
 fsspec==2025.3.2
     # via
+    #   daft
     #   pyiceberg
     #   s3fs
 great-tables==0.17.0
@@ -173,11 +177,14 @@ jupyter-server==2.15.0
     # via
     #   jupyter-lsp
     #   jupyterlab
+    #   jupyterlab-myst
     #   jupyterlab-server
     #   notebook-shim
 jupyter-server-terminals==0.5.3
     # via jupyter-server
 jupyterlab==4.4.1
+    # via -r images/jupyter/requirements.in
+jupyterlab-myst==2.4.2
     # via -r images/jupyter/requirements.in
 jupyterlab-pygments==0.3.0
     # via nbconvert
@@ -259,7 +266,9 @@ ptyprocess==0.7.0 ; os_name != 'nt' or (sys_platform != 'emscripten' and sys_pla
 pure-eval==0.2.3
     # via stack-data
 pyarrow==20.0.0
-    # via -r images/jupyter/requirements.in
+    # via
+    #   -r images/jupyter/requirements.in
+    #   daft
 pycparser==2.22
     # via cffi
 pydantic==2.11.4
@@ -365,6 +374,8 @@ tornado==6.4.2
     #   jupyter-server
     #   jupyterlab
     #   terminado
+tqdm==4.67.1
+    # via daft
 traitlets==5.14.3
     # via
     #   comm
