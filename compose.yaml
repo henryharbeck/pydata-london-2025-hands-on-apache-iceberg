@@ -119,7 +119,6 @@ services:
     image: trinodb/trino:475
     volumes:
       - ./images/trino/lakekeeper.properties:/etc/trino/catalog/lakekeeper.properties
-      - ./images/trino/hive.properties:/etc/trino/catalog/hive.properties
 
     healthcheck:
       test: [ "CMD", "curl", "-I", "http://localhost:8080/v1/status" ]
@@ -133,4 +132,3 @@ volumes:
   minio:
   nessie:
   db:
-  hive:
