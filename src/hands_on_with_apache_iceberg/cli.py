@@ -3,6 +3,7 @@ import pathlib
 import httpx
 import s3fs
 import typer
+from pyiceberg.exceptions import ForbiddenError, NoSuchNamespaceError
 from rich.console import Console
 
 from hands_on_with_apache_iceberg import bootstrap, download
@@ -33,6 +34,7 @@ def download_data(
 
 @app.command("bootstrap")
 def bootstrap_demo() -> None:
+    """Bootstrap the demo Iceberg warehouse"""
     fs = s3fs.S3FileSystem(endpoint_url="http://localhost:9000",
                            key="minio",
                            secret="minio1234",
@@ -53,9 +55,19 @@ def bootstrap_demo() -> None:
 
 @app.command("clear")
 def clear_data() -> None:
-    fs = s3fs.S3FileSystem(endpoint_url="http://localhost:9000",
-                           key="minio",
-                           secret="minio1234",
-                           use_ssl=False)
+    """Delete all Iceberg data to start from scratch"""
+    from pyiceberg.catalog.rest import RestCatalog
+    catalog = RestCatalog("lakekeeper", uri="http://localhost:8181/catalog", warehouse="lakehouse")
 
-    fs.rm("warehouse", recursive=True)
+    with console.status("[bold blue]Deleting data...") as status:
+        try:
+            catalog.drop_table("house_prices.raw", purge_requested=True)
+            status.update("Table dropped!")
+        except ForbiddenError:
+            console.print("[bold red]Table not found!")
+        try:
+            catalog.drop_namespace("house_prices")
+            status.update("Namespace dropped!")
+        except NoSuchNamespaceError:
+            console.print("[bold red]Namespace not found!")
+        console.print("✅ Data cleared successfully!")

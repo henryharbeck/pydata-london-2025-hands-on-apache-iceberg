@@ -5,7 +5,15 @@ from typing import Any
 import polars as pl
 from fsspec import AbstractFileSystem
 from pyiceberg.table import Table
+from pyiceberg.catalog.rest import RestCatalog
+import sqlalchemy as sa
 
+engine = sa.create_engine("trino://trino:@trino:8080/lakekeeper")
+catalog = RestCatalog("lakekeeper", uri="http://lakekeeper:8181/catalog", warehouse="lakehouse")
+
+def query(sql) -> pl.DataFrame:
+    with engine.connect() as conn:
+        return pl.read_database(sql, conn)
 
 def get_iceberg_manifest(fs: AbstractFileSystem, table: Table) -> list[list[dict[str, Any]]]:
     """Get the manifest at the `index` position from the manifest list. """
@@ -27,6 +35,13 @@ def get_iceberg_metadata(fs: AbstractFileSystem, table: Table) -> dict[str, Any]
     """Unzips the gzipped JSON and reads it into a dictionary"""
     with fs.open(table.metadata_location) as f, gzip.open(f) as g_f:
         return json.load(g_f)
+
+def get_iceberg_data_file(fs: AbstractFileSystem, table: Table, index=0) -> pl.DataFrame:
+    """Read the data file from the `index` position in the data_file"""
+    manifest = get_iceberg_manifest(fs, table, index)
+    with fs.open(manifest[index]["data_file"]["file_path"]) as p_f:
+        return pl.read_parquet(p_f)
+
 
 def read_house_prices(filename: str) -> pl.DataFrame:
     """Read in a house prices CSV"""
