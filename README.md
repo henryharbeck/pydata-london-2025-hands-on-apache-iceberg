@@ -5,3 +5,9 @@ https://www.nasdaq.com/market-activity/etf/spy/historical?page=1&rows_per_page=1
 
 ### Data dictionary
 https://www.gov.uk/guidance/about-the-price-paid-data
+
+### Gold Prices
+https://www.kaggle.com/datasets/novandraanugrah/xauusd-gold-price-historical-data-2004-2024/data
+
+### Stock prices
+https://www.wsj.com/market-data/quotes

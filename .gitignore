@@ -8,6 +8,6 @@ wheels/
 
 # Virtual environments
 .venv
-data/*.csv
+data/house_prices/*.csv
 notebooks/.ipynb_checkpoints
 __marimo__
