@@ -18,7 +18,7 @@ anyio==4.9.0
     # via
     #   httpx
     #   jupyter-server
-appnope==0.1.4 ; sys_platform == 'darwin'
+appnope==0.1.4 ; platform_system == 'Darwin'
     # via ipykernel
 argon2-cffi==23.1.0
     # via jupyter-server
@@ -61,7 +61,7 @@ charset-normalizer==3.4.2
     # via requests
 click==8.2.0
     # via pyiceberg
-colorama==0.4.6 ; sys_platform == 'win32'
+colorama==0.4.6 ; sys_platform == 'win32' or platform_system == 'Windows'
     # via
     #   click
     #   ipython
@@ -72,7 +72,7 @@ commonmark==0.9.1
     # via great-tables
 cramjam==2.10.0
     # via python-snappy
-daft==0.4.14
+daft==0.4.15
     # via -r images/jupyter/requirements.in
 debugpy==1.8.14
     # via ipykernel
@@ -173,7 +173,9 @@ jupyter-events==0.12.0
     # via jupyter-server
 jupyter-lsp==2.2.5
     # via jupyterlab
-jupyter-server==2.15.0
+jupyter-ruff==0.2.0
+    # via -r images/jupyter/requirements.in
+jupyter-server==2.16.0
     # via
     #   jupyter-lsp
     #   jupyterlab
@@ -249,7 +251,7 @@ platformdirs==4.3.8
     # via jupyter-core
 polars==1.29.0
     # via -r images/jupyter/requirements.in
-prometheus-client==0.21.1
+prometheus-client==0.22.0
     # via jupyter-server
 prompt-toolkit==3.0.51
     # via ipython
@@ -335,7 +337,7 @@ rfc3986-validator==0.1.1
     #   jupyter-events
 rich==13.9.4
     # via pyiceberg
-rpds-py==0.24.0
+rpds-py==0.25.0
     # via
     #   jsonschema
     #   referencing
@@ -343,7 +345,7 @@ s3fs==2025.3.2
     # via pyiceberg
 send2trash==1.8.3
     # via jupyter-server
-setuptools==80.4.0
+setuptools==80.7.1
     # via jupyterlab
 six==1.17.0
     # via
@@ -355,7 +357,7 @@ sortedcontainers==2.4.0
     # via pyiceberg
 soupsieve==2.7
     # via beautifulsoup4
-sqlalchemy==2.0.40
+sqlalchemy==2.0.41
     # via trino
 stack-data==0.6.3
     # via ipython
@@ -369,7 +371,7 @@ terminado==0.18.1
     #   jupyter-server-terminals
 tinycss2==1.4.0
     # via bleach
-tornado==6.4.2
+tornado==6.5
     # via
     #   ipykernel
     #   jupyter-client
@@ -394,7 +396,7 @@ traitlets==5.14.3
     #   nbformat
 trino==0.334.0
     # via -r images/jupyter/requirements.in
-types-python-dateutil==2.9.0.20241206
+types-python-dateutil==2.9.0.20250516
     # via arrow
 typing-extensions==4.13.2
     # via
@@ -409,7 +411,7 @@ typing-extensions==4.13.2
     #   typing-inspection
 typing-inspection==0.4.0
     # via pydantic
-tzdata==2025.2 ; sys_platform == 'win32'
+tzdata==2025.2 ; platform_system == 'Windows'
     # via tzlocal
 tzlocal==5.3.1
     # via trino
