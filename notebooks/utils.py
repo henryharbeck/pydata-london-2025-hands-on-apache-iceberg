@@ -22,7 +22,7 @@ def get_iceberg_manifest(fs: AbstractFileSystem, table: Table) -> list[list[dict
     for manifest_meta in manifest_list:
         with fs.open(manifest_meta["manifest_path"]) as m_f:
             manifest = pl.read_avro(m_f).to_dicts()
-            manifest_list.append(manifest)
+            manifest_lists.append(manifest)
     return manifest_lists
 
 def get_iceberg_manifest_list(fs: AbstractFileSystem, table: Table) -> list[dict[str, Any]]:
@@ -37,9 +37,9 @@ def get_iceberg_metadata(fs: AbstractFileSystem, table: Table) -> dict[str, Any]
         return json.load(g_f)
 
 def get_iceberg_data_file(fs: AbstractFileSystem, table: Table, index=0) -> pl.DataFrame:
-    """Read the data file from the `index` position in the data_file"""
+    """Read the data file from the first `index` position in the data_file"""
     manifest = get_iceberg_manifest(fs, table, index)
-    with fs.open(manifest[index]["data_file"]["file_path"]) as p_f:
+    with fs.open(manifest[0][index]["data_file"]["file_path"]) as p_f:
         return pl.read_parquet(p_f)
 
 

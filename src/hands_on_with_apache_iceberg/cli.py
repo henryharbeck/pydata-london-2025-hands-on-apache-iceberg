@@ -1,4 +1,5 @@
 import pathlib
+import time
 
 import httpx
 import s3fs
@@ -11,19 +12,15 @@ from hands_on_with_apache_iceberg import bootstrap, download
 app = typer.Typer(no_args_is_help=True)
 console = Console()
 
+
 @app.command("download")
 def download_data(
-    output_dir: pathlib.Path = typer.Option(
-        "./data", help="Directory to save downloaded files"
-    ),
-) -> None:
+        output_dir: pathlib.Path = typer.Option("./data", help="Directory to save downloaded files"), ) -> None:
     """
     Download data from a list of URLs using async HTTPX with a Rich progress bar.
     """
 
-    base_url = (
-        "http://prod.publicdata.landregistry.gov.uk.s3-website-eu-west-1.amazonaws.com"
-    )
+    base_url = ("http://prod.publicdata.landregistry.gov.uk.s3-website-eu-west-1.amazonaws.com")
     # Example file: pp-2024.csv
     urls = [f"{base_url}/pp-{year}.csv" for year in range(1995, 2025)]
     # Example file: pp-2024.csv
@@ -35,10 +32,7 @@ def download_data(
 @app.command("bootstrap")
 def bootstrap_demo() -> None:
     """Bootstrap the demo Iceberg warehouse"""
-    fs = s3fs.S3FileSystem(endpoint_url="http://localhost:9000",
-                           key="minio",
-                           secret="minio1234",
-                           use_ssl=False)
+    fs = s3fs.S3FileSystem(endpoint_url="http://localhost:9000", key="minio", secret="minio1234", use_ssl=False)
 
     with console.status("[bold blue]Creating bucket...") as status:
         bootstrap.create_bucket(fs, "warehouse")
@@ -53,21 +47,26 @@ def bootstrap_demo() -> None:
             bootstrap.create_warehouse(client, "warehouse")
             console.print("[bold green]✅ Warehouse created successfully")
 
+
 @app.command("clear")
 def clear_data() -> None:
     """Delete all Iceberg data to start from scratch"""
     from pyiceberg.catalog.rest import RestCatalog
     catalog = RestCatalog("lakekeeper", uri="http://localhost:8181/catalog", warehouse="lakehouse")
 
-    with console.status("[bold blue]Deleting data...") as status:
-        try:
-            catalog.drop_table("house_prices.raw", purge_requested=True)
-            status.update("Table dropped!")
-        except ForbiddenError:
-            console.print("[bold red]Table not found!")
-        try:
-            catalog.drop_namespace("house_prices")
-            status.update("Namespace dropped!")
-        except NoSuchNamespaceError:
-            console.print("[bold red]Namespace not found!")
-        console.print("✅ Data cleared successfully!")
+    with console.status("[bold blue]Deleting data...", ) as status:
+
+        for table in ["house_prices.dim_address",
+                      "house_prices.fct_house_prices",
+                      "house_prices.prices",
+                      "house_prices.profits",
+                      "house_prices.raw",
+                      "fx.rates",
+                      "commodities.gold"]:
+            status.update(f"Dropping table {table}")
+            try:
+                catalog.drop_table(table, purge_requested=True)
+                console.print(f"[bold green]{table} dropped successfully!")
+            except ForbiddenError:
+                console.print(f"[bold red]{table} not found!")
+    console.print("✅ Data cleared successfully!")
