@@ -7,9 +7,11 @@ from fsspec import AbstractFileSystem
 from pyiceberg.table import Table
 from pyiceberg.catalog.rest import RestCatalog
 import sqlalchemy as sa
+import s3fs
 
 engine = sa.create_engine("trino://trino:@trino:8080/lakekeeper")
 catalog = RestCatalog("lakekeeper", uri="http://lakekeeper:8181/catalog", warehouse="lakehouse")
+fs = s3fs.S3FileSystem(endpoint_url="http://minio:9000", key="minio", secret="minio1234")
 
 def query(sql) -> pl.DataFrame:
     with engine.connect() as conn:

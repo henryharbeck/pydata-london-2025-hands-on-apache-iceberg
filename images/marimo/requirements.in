@@ -1,6 +1,0 @@
-pyiceberg[snappy,s3fs]
-polars[style]
-pyarrow
-duckdb
-trino[sqlalchemy]
-marimo[recommended,lsp]
