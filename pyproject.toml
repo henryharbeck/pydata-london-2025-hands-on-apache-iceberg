@@ -13,7 +13,8 @@ dependencies = [
     "rich",
     "s3fs",
     "typer",
-    "pyiceberg"
+    "pyiceberg",
+    "yfinance>=0.2.61",
 ]
 
 [project.scripts]
