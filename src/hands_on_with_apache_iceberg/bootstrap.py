@@ -39,4 +39,3 @@ def create_warehouse(client: httpx.Client, storage_bucket: str = "warehouse") ->
     }
     r = client.post("/management/v1/warehouse", json=payload)
     r.raise_for_status()
-

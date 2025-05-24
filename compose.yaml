@@ -25,23 +25,6 @@ services:
       - ./data:/app/notebooks/data
     ports:
       - "8080:8080"
-
-  marimo:
-    build:
-      context: images/marimo
-    command:
-      - "marimo"
-      - "edit"
-      - "--host"
-      - "0.0.0.0"
-      - "-p"
-      - "8080"
-      - "--no-token"
-    ports:
-      - "8081:8080"
-    volumes:
-      - "./notebooks:/app/notebooks/"
-      - "./data:/app/data/"
   minio:
     image: minio/minio
     ports:
@@ -128,6 +111,12 @@ services:
       start_period: 10s
     ports:
       - "9999:8080"
+  dremio:
+    image: dremio/dremio-oss:26.0
+    ports:
+      - "9047:9047"
+      - "31010:31010"
+      - "45678:45678"
 volumes:
   minio:
   nessie:

@@ -1,26 +1,30 @@
 import pathlib
-import time
 from typing import Annotated
 
 import httpx
 import s3fs
 import typer
-from click import confirmation_option
-from pyiceberg.exceptions import ForbiddenError, NoSuchNamespaceError
+from pyiceberg.exceptions import ForbiddenError
 from rich.console import Console
 from curl_cffi.requests.exceptions import HTTPError
 from hands_on_with_apache_iceberg import bootstrap, download
 
 app = typer.Typer(no_args_is_help=True)
 download_app = typer.Typer(no_args_is_help=True)
-app.add_typer(download_app, name="download")
+app.add_typer(download_app, name="download", help="Download required data files")
 console = Console()
 
+
 @download_app.command("ticker")
-def download_ticker(tickers: Annotated[list[str], typer.Argument(help="Ticker symbol to download")],
-                    output_dir: Annotated[pathlib.Path, typer.Option("--output-dir", "-o", help="Output directory")] = "./data/stocks") -> None:
+def download_ticker(
+    tickers: Annotated[list[str], typer.Argument(help="Ticker symbol to download")],
+    output_dir: Annotated[
+        pathlib.Path, typer.Option("--output-dir", "-o", help="Output directory")
+    ] = "./data/stocks",
+) -> None:
     """Download historical stock data from Yahoo Finance"""
     import yfinance as yf
+
     with console.status("[bold blue]Downloading ticker data...") as status:
         for ticker in tickers:
             status.update(f"[bold blue]Downloading ticker data for {ticker}...")
@@ -33,19 +37,30 @@ def download_ticker(tickers: Annotated[list[str], typer.Argument(help="Ticker sy
                 if e.response.status_code == 404:
                     console.print(f"[red] Unknown ticker symbol: {ticker}")
                 else:
-                    console.print(f"[red] Error downloading {ticker}: {e.response.text}")
+                    console.print(
+                        f"[red] Error downloading {ticker}: {e.response.text}"
+                    )
 
 
 @download_app.command("housing")
 def download_data(
-        start_year: Annotated[int, typer.Option( "--start-year", "-s", help="First year of data to download")] = 2015,
-        end_year: Annotated[int, typer.Option("--end-year", "-e", help="Last year of data to download")] = 2024,
-        output_dir: pathlib.Path = typer.Option("./data/house_prices", help="Directory to save downloaded files"), ) -> None:
+    start_year: Annotated[
+        int, typer.Option("--start-year", "-s", help="First year of data to download")
+    ] = 2015,
+    end_year: Annotated[
+        int, typer.Option("--end-year", "-e", help="Last year of data to download")
+    ] = 2024,
+    output_dir: pathlib.Path = typer.Option(
+        "./data/house_prices", help="Directory to save downloaded files"
+    ),
+) -> None:
     """
     Download housing sales data from Gov.uk.
     """
 
-    base_url = ("http://prod.publicdata.landregistry.gov.uk.s3-website-eu-west-1.amazonaws.com")
+    base_url = (
+        "http://prod.publicdata.landregistry.gov.uk.s3-website-eu-west-1.amazonaws.com"
+    )
     # Example file: pp-2024.csv
     urls = [f"{base_url}/pp-{year}.csv" for year in range(start_year, end_year)]
     output_path = download.download_files(urls, output_dir)
@@ -56,7 +71,12 @@ def download_data(
 @app.command("bootstrap")
 def bootstrap_demo() -> None:
     """Bootstrap the demo Iceberg warehouse"""
-    fs = s3fs.S3FileSystem(endpoint_url="http://localhost:9000", key="minio", secret="minio1234", use_ssl=False)
+    fs = s3fs.S3FileSystem(
+        endpoint_url="http://localhost:9000",
+        key="minio",
+        secret="minio1234",
+        use_ssl=False,
+    )
 
     with console.status("[bold blue]Creating bucket...") as status:
         bootstrap.create_bucket(fs, "warehouse")
@@ -76,21 +96,21 @@ def bootstrap_demo() -> None:
 def clear_data() -> None:
     """Delete all Iceberg data to start from scratch"""
     from pyiceberg.catalog.rest import RestCatalog
-    catalog = RestCatalog("lakekeeper", uri="http://localhost:8181/catalog", warehouse="lakehouse")
 
-    with console.status("[bold blue]Deleting data...", ) as status:
+    catalog = RestCatalog(
+        "lakekeeper", uri="http://localhost:8181/catalog", warehouse="lakehouse"
+    )
+    namespaces = [n[0] for n in catalog.list_namespaces()]
 
-        for table in ["house_prices.dim_address",
-                      "house_prices.fct_house_prices",
-                      "house_prices.prices",
-                      "house_prices.profits",
-                      "house_prices.raw",
-                      "fx.rates",
-                      "commodities.gold"]:
-            status.update(f"Dropping table {table}")
-            try:
-                catalog.drop_table(table, purge_requested=True)
-                console.print(f"[bold green]{table} dropped successfully!")
-            except ForbiddenError:
-                console.print(f"[bold red]{table} not found!")
+    with console.status(
+        "[bold blue]Deleting data...",
+    ) as status:
+        for namespace in namespaces:
+            for table in catalog.list_tables(namespace):
+                status.update(f"Dropping table {table}")
+                try:
+                    catalog.drop_table(table, purge_requested=True)
+                    console.print(f"[bold green]{table} dropped successfully!")
+                except ForbiddenError:
+                    console.print(f"[bold red]{table} not found!")
     console.print("✅ Data cleared successfully!")
