@@ -111,12 +111,6 @@ services:
       start_period: 10s
     ports:
       - "9999:8080"
-  dremio:
-    image: dremio/dremio-oss:26.0
-    ports:
-      - "9047:9047"
-      - "31010:31010"
-      - "45678:45678"
 volumes:
   minio:
   nessie:

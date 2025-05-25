@@ -20,6 +20,13 @@ See https://docs.docker.com/desktop/
 I recommend Orbstack:
 See https://orbstack.dev/
 
+With Docker and Docker Compose installed, run the following which will start the required
+services
+
+```bash
+docker compose up -d
+```
+
 ## Installing the CLI
 You'll need to download some data as well as bootstrap our catalog. For your convenience,
 this project includes a CLI to do so. 
