@@ -107,10 +107,11 @@ def clear_data() -> None:
     ) as status:
         for namespace in namespaces:
             for table in catalog.list_tables(namespace):
-                status.update(f"Dropping table {table}")
+                table_name = ".".join(table)
+                status.update(f"Dropping table {table_name}")
                 try:
                     catalog.drop_table(table, purge_requested=True)
-                    console.print(f"[bold green]{table} dropped successfully!")
+                    console.print(f"[bold green]✅  {table_name} dropped successfully!")
                 except ForbiddenError:
-                    console.print(f"[bold red]{table} not found!")
+                    console.print(f"[bold red]❌ {table_name} not found!")
     console.print("✅ Data cleared successfully!")
