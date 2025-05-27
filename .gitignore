@@ -11,3 +11,4 @@ wheels/
 data/house_prices/*.csv
 notebooks/.ipynb_checkpoints
 __marimo__
+notebooks/.Trash-1000
