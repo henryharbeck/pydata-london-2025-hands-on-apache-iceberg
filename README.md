@@ -63,7 +63,7 @@ iceberg bootstrap
 ``` 
 
 ## Getting the data
-We are using gov.uk's `Price Paid Data` which registers every property sale in 
+We are using Gov.uk's `Price Paid Data` which registers every property sale in 
 England and Wales. They publish monthly data starting in 1995. 
 
 https://www.gov.uk/government/statistical-data-sets/price-paid-data-downloads
@@ -77,7 +77,11 @@ Gov.uk also provides a data dictionary for this data that is a handy reference w
 the data
 https://www.gov.uk/guidance/about-the-price-paid-data
 
-### `iceberg download housing`
+### Download the data
+
+```bash
+iceberg download housing
+```
 While gov.uk has data back from 1995, by default, the CLI will download data starting in 2015, 
 mainly to not have to wait around 10 minutes when processing the data. If you want to explore 
 further back, set the `--start-year` option to the year you're interested in.
@@ -97,3 +101,7 @@ https://www.kaggle.com/datasets/novandraanugrah/xauusd-gold-price-historical-dat
 ### Stock prices
 Stock ticker historical prices are sourced from Yahoo Finance using the `yfinance` package
 https://finance.yahoo.com/
+
+# Let's get started!
+
+You'll find Jupyter Lab running at `http://localhost:8080`

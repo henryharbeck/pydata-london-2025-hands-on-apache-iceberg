@@ -7,6 +7,7 @@ def bootstrap_project(client: httpx.Client) -> None:
 
     r = client.post("/management/v1/bootstrap", json=payload)
     r.raise_for_status()
+    
 
 
 def create_bucket(fs: AbstractFileSystem, bucket_name: str) -> None:

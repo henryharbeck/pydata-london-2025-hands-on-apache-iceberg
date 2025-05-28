@@ -32,7 +32,7 @@ async def download_all_files(urls: list[str], output_dir: Path) -> None:
         download_tasks = []
         for url in urls:
             filename = url.split("/")[-1]
-            task = progress.add_task(f"[green]Downloading {filename}", total=1.0)
+            task = progress.add_task(f"[cyan]Downloading {filename}", total=1.0)
             download_tasks.append((url, task, filename))
 
         # Create async tasks

@@ -4,9 +4,10 @@ from typing import Annotated
 import httpx
 import s3fs
 import typer
+from curl_cffi.requests.exceptions import HTTPError
 from pyiceberg.exceptions import ForbiddenError
 from rich.console import Console
-from curl_cffi.requests.exceptions import HTTPError
+
 from hands_on_with_apache_iceberg import bootstrap, download
 
 app = typer.Typer(no_args_is_help=True)
@@ -62,7 +63,7 @@ def download_data(
         "http://prod.publicdata.landregistry.gov.uk.s3-website-eu-west-1.amazonaws.com"
     )
     # Example file: pp-2024.csv
-    urls = [f"{base_url}/pp-{year}.csv" for year in range(start_year, end_year)]
+    urls = [f"{base_url}/pp-{year}.csv" for year in range(start_year, end_year + 1)]
     output_path = download.download_files(urls, output_dir)
 
     console.print(f"[green]All files downloaded successfully to {output_path}")
@@ -84,12 +85,25 @@ def bootstrap_demo() -> None:
 
         status.update("[bold blue]Bootstrapping project...")
         with httpx.Client(base_url="http://localhost:8181") as client:
-            bootstrap.bootstrap_project(client)
-            console.print("[bold green]✅ Project bootstrapped successfully")
+            try:
+                bootstrap.bootstrap_project(client)
+                console.print("[bold green]✅ Project bootstrapped successfully")
+            except httpx.HTTPStatusError as e:
+                if e.response.status_code == 400:
+                    console.print("[cyan]Catalog already bootstrapped - skipping...")
+                else:
+                    console.print(f"[bold red] Something went wrong, {e.response.text}")
+
 
             status.update("[bold blue]Creating warehouse...")
-            bootstrap.create_warehouse(client, "warehouse")
-            console.print("[bold green]✅ Warehouse created successfully")
+            try:
+                bootstrap.create_warehouse(client, "warehouse")
+                console.print("[bold green]✅ Warehouse created successfully")
+            except httpx.HTTPStatusError as e:
+                if e.response.status_code == 400:
+                    console.print("[cyan]Warehouse already exists - skipping...")
+                else:
+                    console.print(f"[bold red] Something went wrong, {e.response.text}")
 
 
 @app.command("clear")

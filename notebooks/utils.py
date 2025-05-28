@@ -32,7 +32,7 @@ def get_iceberg_manifest(
     for manifest_meta in manifest_list:
         with fs.open(manifest_meta["manifest_path"]) as m_f:
             manifest = pl.read_avro(m_f).to_dicts()
-            manifest_lists.append(manifest)
+            manifest_lists.extend(manifest)
     return manifest_lists
 
 
