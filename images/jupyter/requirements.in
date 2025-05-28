@@ -1,5 +1,5 @@
 pyiceberg[snappy,s3fs,pyiceberg-core]
-polars[style]
+polars
 pyarrow
 duckdb
 daft
