@@ -13,7 +13,6 @@ services:
       - "/app/notebooks"
       - "--NotebookApp.token=''"
       - "--NotebookApp.password=''"
-#    user: ${UID:-1000}:${GUID:-20}
     healthcheck:
       test: ["CMD", "curl", "localhost:8080/api"]
       interval: 30s
@@ -62,7 +61,7 @@ services:
       start_period: 10s
 
   lakekeeper:
-    image: quay.io/lakekeeper/catalog:latest-main
+    image: quay.io/lakekeeper/catalog:v0.8.5
     pull_policy: always
     environment:
       - LAKEKEEPER__PG_ENCRYPTION_KEY=P0d6Ye9v4rXDUpHUSj003yfF4E07SSBj
@@ -86,10 +85,9 @@ services:
     ports:
       - "8181:8181"
   migrate:
-    image: quay.io/lakekeeper/catalog:latest-main
+    image: quay.io/lakekeeper/catalog:v0.8.5
     pull_policy: always
     environment:
-      - LAKEKEEPER__PG_ENCRYPTION_KEY=This-is-NOT-Secure!
       - LAKEKEEPER__PG_DATABASE_URL_READ=postgresql://postgres:postgres@db:5432/postgres
       - LAKEKEEPER__PG_DATABASE_URL_WRITE=postgresql://postgres:postgres@db:5432/postgres
       - RUST_LOG=info

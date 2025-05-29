@@ -56,7 +56,7 @@ def get_iceberg_data_file(
 ) -> pl.DataFrame:
     """Read the data file from the first `index` position in the data_file"""
     manifest = get_iceberg_manifest(fs, table, index)
-    with fs.open(manifest[0][index]["data_file"]["file_path"]) as p_f:
+    with fs.open(manifest[index]["data_file"]["file_path"]) as p_f:
         return pl.read_parquet(p_f)
 
 

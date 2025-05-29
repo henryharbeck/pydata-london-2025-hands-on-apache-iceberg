@@ -1,12 +1,6 @@
 FROM python:3.12-slim
 
-
-RUN apt-get update -y && \
-    apt-get install -y \
-    jq  \
-    curl
-
-COPY --from=ghcr.io/astral-sh/uv:0.4.20 /uv /bin/uv
+COPY --from=ghcr.io/astral-sh/uv:0.7.8 /uv /bin/
 ENV UV_SYSTEM_PYTHON=1 \
     UV_LINK_MODE=copy
 
