@@ -8,3 +8,4 @@ jupyterlab
 jupyterlab_myst
 jupyter_ruff
 ipywidgets
+quixstreams[avro]

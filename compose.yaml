@@ -11,8 +11,9 @@ services:
       - "8080"
       - "--notebook-dir"
       - "/app/notebooks"
-      - "--NotebookApp.token=''"
-      - "--NotebookApp.password=''"
+      - "--IdentityProvider.token=''"
+      - "--ServerApp.password=''"
+      - "--no-browser"
     healthcheck:
       test: ["CMD", "curl", "localhost:8080/api"]
       interval: 30s
