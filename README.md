@@ -105,3 +105,26 @@ https://finance.yahoo.com/
 # Let's get started!
 
 You'll find Jupyter Lab running at `http://localhost:8080`
+
+Other services:
+### Minio Console
+> Username: minio <br>
+> Password: minio1234 <br>
+> URL: http://localhost:9001
+
+### Lakekeeper UI
+> URL: http://localhost:8181
+
+
+# BONUS: Iceberg Streaming
+I've included a bonus notebook on Iceberg streaming support. Since this requires a few extra GBs of
+Docker images (and RAM), you can opt in to it by running the following
+
+```bash
+docker compose -f compose.kafka.yaml up -d
+```
+
+This will spin up some additional services, including the UI console:
+
+### Redpanda Console
+> URL: http://localhost:8001

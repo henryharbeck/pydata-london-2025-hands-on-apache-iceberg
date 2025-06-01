@@ -24,24 +24,39 @@ services:
       # Replace CLUSTER_ID with a unique base64 UUID using "bin/kafka-storage.sh random-uuid"
       # See https://docs.confluent.io/kafka/operations-tools/kafka-tools.html#kafka-storage-sh
       CLUSTER_ID: 'MkU3OEVBNTcwNTJENDM2Qk'
+    healthcheck:
+      test: [ "CMD", "kafka-broker-api-versions", "--bootstrap-server", "localhost:9092" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
 
   schema-registry:
     image: confluentinc/cp-schema-registry:7.9.1
-    depends_on:
-      - broker
     ports:
       - "8081:8081"
     environment:
       SCHEMA_REGISTRY_HOST_NAME: schema-registry
       SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: 'broker:29092'
       SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
+    healthcheck:
+      test: [ "CMD", "curl", "--fail", "localhost:8081" ]
+      interval: 30s
+      timeout: 10s
+      retries: 2
+      start_period: 1s
+    depends_on:
+      broker:
+        condition: service_healthy
 
   connect:
     build:
       context: images/kafka_connect
     depends_on:
-      - broker
-      - schema-registry
+      broker:
+        condition: service_healthy
+      schema-registry:
+        condition: service_healthy
     ports:
       - "8083:8083"
     environment:
@@ -59,6 +74,13 @@ services:
       CONNECT_VALUE_CONVERTER: io.confluent.connect.avro.AvroConverter
       CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL: http://schema-registry:8081
       CONNECT_PLUGIN_PATH: "/usr/share/java,/usr/share/confluent-hub-components"
+    healthcheck:
+      test: [ "CMD", "curl", "--fail", "localhost:8083" ]
+      interval: 30s
+      timeout: 10s
+      retries: 2
+      start_period: 1s
+
   console:
     image: docker.redpanda.com/redpandadata/console:v3.1.0
     entrypoint: /bin/sh
@@ -81,6 +103,14 @@ services:
               url: "http://connect:8083"
     ports:
       - "8001:8080"
+    healthcheck:
+      test: [ "CMD", "curl", "--fail", "localhost:8080/admin/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 2
+      start_period: 1s
     depends_on:
-      - broker
-      - schema-registry
+      broker:
+        condition: service_healthy
+      schema-registry:
+        condition: service_healthy
